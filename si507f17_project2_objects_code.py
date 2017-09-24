@@ -34,22 +34,22 @@ print("\n*** *** PROJECT 2 *** ***\n")
 ## You may want to try them out and see what data gets returned, in order to complete the problems in this project.
 
 def params_unique_combination(baseurl, params_d, private_keys=["api_key"]):
-    alphabetized_keys = sorted(params_d.keys())
-    res = []
-    for k in alphabetized_keys:
-        if k not in private_keys:
-            res.append("{}-{}".format(k, params_d[k]))
-    return baseurl + "_".join(res)
+	alphabetized_keys = sorted(params_d.keys())
+	res = []
+	for k in alphabetized_keys:
+		if k not in private_keys:
+			res.append("{}-{}".format(k, params_d[k]))
+	return baseurl + "_".join(res)
 
 def sample_get_cache_itunes_data(search_term,media_term="all"):
 	CACHE_FNAME = 'cache_file_name.json'
 	try:
-	    cache_file = open(CACHE_FNAME, 'r')
-	    cache_contents = cache_file.read()
-	    CACHE_DICTION = json.loads(cache_contents)
-	    cache_file.close()
+		cache_file = open(CACHE_FNAME, 'r')
+		cache_contents = cache_file.read()
+		CACHE_DICTION = json.loads(cache_contents)
+		cache_file.close()
 	except:
-	    CACHE_DICTION = {}
+		CACHE_DICTION = {}
 	baseurl = "https://itunes.apple.com/search"
 	params = {}
 	params["media"] = media_term
@@ -84,35 +84,35 @@ print("\n***** PROBLEM 1 *****\n")
 ## - a special len method, which, for the Media class, returns 0 no matter what. (The length of an audiobook might mean something different from the length of a song, depending on how you want to define them!)
 ## - a special contains method (for the in operator) which takes one additional input, as all contains methods must, which should always be a string, and checks to see if the string input to this contains method is INSIDE the string representing the title of this piece of media (the title instance variable)
 
-user_search_term = input("Enter a search term for song here: ")
-itunes_search_results = sample_get_cache_itunes_data(user_search_term)
+# user_search_term = input("Enter a search term for song here: ")
+itunes_search_results = sample_get_cache_itunes_data("potato")
 single_itunes_result = itunes_search_results["results"][0]
 
 class Media(object):
-
-  def __init__(self, single_itunes_result):
-    self.title = single_itunes_result["trackName"]
-    self.author = single_itunes_result["artistName"]
-    self.itunes_URL = single_itunes_result["trackViewUrl"]
-    self.itunes_id = single_itunes_result["trackId"]
+    def __init__(self, single_itunes_result):
+        self.title = single_itunes_result["trackName"].replace(',','')
+        self.author = single_itunes_result["artistName"]
+        self.itunes_URL = single_itunes_result["trackViewUrl"]
+        self.itunes_id = single_itunes_result["trackId"]
+        self.len = 0
+        self.csv_line = "\n{},{},{},{},{}".format(self.title, self.author, self.itunes_id, self.itunes_URL, self.len)
    
 
-  def __str__(self):
-  	return "{} by {}".format(self.title, self.author)
+    def __str__(self):
+        return "{} by {}".format(self.title, self.author)
 
 
-  def __repr__(self):
-    return "ITUNES MEDIA: {}".format(self.itunes_id)
+    def __repr__(self):
+        return "ITUNES MEDIA: {}".format(self.itunes_id)
 
 
-  def __contains__(self,test_string):
-    return (test_string in self.title)
+    def __contains__(self,test_string):
+        return (test_string in self.title)
 
-  def len(self):
-  	return 0
+    def __len__(self):
+        return 0
 
 single_itunes_result_media = Media(single_itunes_result)
-print(single_itunes_result_media)
 
 ## [PROBLEM 2] [400 POINTS]
 print("\n***** PROBLEM 2 *****\n")
@@ -138,18 +138,23 @@ print("\n***** PROBLEM 2 *****\n")
 
 class Song(Media):
 
-  def __init__(self, single_itunes_result):
-  	self.title = single_itunes_result["trackName"]
-  	self.author = single_itunes_result["artistName"]
-  	self.itunes_URL = single_itunes_result["trackViewUrl"]
-  	self.itunes_id = single_itunes_result["trackId"]
-  	self.album = single_itunes_result["collectionName"]
-  	self.track_number = single_itunes_result["trackNumber"]
-  	self.genre = single_itunes_result["trackViewUrl"]
-  	self.tracklength = (single_itunes_result["trackTimeMillis"]/1000)
+    def __init__(self, single_itunes_result):
+        self.title = single_itunes_result["trackName"].replace(',','')
+        self.author = single_itunes_result["artistName"]
+        self.itunes_URL = single_itunes_result["trackViewUrl"]
+        self.itunes_id = single_itunes_result["trackId"]
+        self.album = single_itunes_result["collectionName"]
+        self.track_number = single_itunes_result["trackNumber"]
+        self.genre = single_itunes_result["primaryGenreName"]
+        self.tracklength = int((single_itunes_result["trackTimeMillis"]/1000))
+        self.len = int((single_itunes_result["trackTimeMillis"]/1000))
+        self.csv_line = "\n{},{},{},{},{}".format(self.title, self.author, self.itunes_id, self.itunes_URL, self.len)
 
-  def len(self):
-  	return self.tracklength
+    def __len__(self):
+        return self.tracklength
+
+single_itunes_result_song = Song(single_itunes_result)
+print (single_itunes_result_song.tracklength)
 ### class Movie:
 
 ## Should have the following additional instance variables:
@@ -161,8 +166,41 @@ class Song(Media):
 ## Should have the len method overridden to return the number of minutes in the movie (HINT: The data returns the number of milliseconds in the movie... how can you convert that to minutes?)
 
 ## Should have an additional method called title_words_num that returns an integer representing the number of words in the movie description. If there is no movie description, this method should return 0.
+class Movie(Media):
 
+    def __init__(self, single_itunes_result):
+        self.title = single_itunes_result["trackName"].replace(',','')
+        self.author = single_itunes_result["artistName"]
+        self.itunes_URL = single_itunes_result["trackViewUrl"]
+        self.itunes_id = single_itunes_result["trackId"]
+        self.rating = single_itunes_result["contentAdvisoryRating"]
+        self.genre = single_itunes_result["primaryGenreName"]
+        try:
+            self.description = single_itunes_result["longDescription"].encode("utf8")
+        except:
+            self.description = None
+        try:
+            self.length = int((single_itunes_result["trackTimeMillis"]/60000))
+        except:
+            self.length = 0
+        try:
+            self.len = int((single_itunes_result["trackTimeMillis"]/60000))
+        except:
+            self.len = 0
+        self.csv_line = "\n{},{},{},{},{}".format(self.title, self.author, self.itunes_id, self.itunes_URL, self.len)
+	
 
+    def __len__(self):
+        return self.length
+	
+    def title_words_num(self):
+        descount = 0
+        try:
+            for word in self.description.split():
+                descount += 1
+        except:
+            descount = 0
+        return descount
 
 ## [PROBLEM 3] [150 POINTS]
 print("\n***** PROBLEM 3 *****\n")
@@ -189,9 +227,17 @@ movie_samples = sample_get_cache_itunes_data("love","movie")["results"]
 ## a list of Movie objects saved in a variable movie_list.
 
 ## You may use any method of accumulation to make that happen.
+media_list = []
+for media_object in media_samples:
+    media_list.append(Media(media_object))
 
+song_list = []
+for song_object in song_samples:
+    song_list.append(Song(song_object))
 
-
+movie_list = []
+for movie_object in movie_samples:
+    movie_list.append(Movie(movie_object))
 
 ## [PROBLEM 4] [200 POINTS]
 print("\n***** PROBLEM 4 *****\n")
@@ -223,7 +269,61 @@ print("\n***** PROBLEM 4 *****\n")
 ## HINT #4: Write or draw out your plan for this before you actually start writing the code! That will make it much easier.
 
 
+# If .CSV file exists dont add column headers to .CSV writeout string. If CSV file doesnt exist yet do include headers. 
 
+
+# write to .CSV final (final line)
+
+#Media Writeup Method
+media_write_str = ""
+for media_object in media_list:
+    media_write_str += media_object.csv_line
+media_csv = '506_P2_Writeout_media.csv'
+try:
+    open(media_csv, 'r')
+    fcsv = open(media_csv, 'a') #write a new line, do not write over existing data
+    fcsv.write(media_write_str)
+    fcsv.close()
+except:
+    columnheaders = ("title,artist,id,url,length")
+    fcsv = open(media_csv, 'a') #write a new line, do not write over existing data
+    fcsv.write(columnheaders)
+    fcsv.write(media_write_str)
+    fcsv.close()
+
+# Song writeup Method
+song_write_str = ""
+for song_object in song_list:
+    song_write_str += song_object.csv_line
+song_csv = '506_P2_Writeout_song.csv'
+try:
+    open(song_csv, 'r')
+    fcsv = open(song_csv, 'a') #write a new line, do not write over existing data
+    fcsv.write(song_write_str)
+    fcsv.close()
+except:
+    columnheaders = ("title,artist,id,url,length")
+    fcsv = open(song_csv, 'a') #write a new line, do not write over existing data
+    fcsv.write(columnheaders)
+    fcsv.write(song_write_str)
+    fcsv.close()
+
+# Movie writeup method
+movie_write_str = ""
+for movie_object in movie_list:
+    movie_write_str += movie_object.csv_line
+movie_csv = '506_P2_Writeout_movies.csv'
+try:
+    open(movie_csv, 'r')
+    fcsv = open(movie_csv, 'a') #write a new line, do not write over existing data
+    fcsv.write(movie_write_str)
+    fcsv.close()
+except:
+    columnheaders = ("title,artist,id,url,length")
+    fcsv = open(movie_csv, 'a') #write a new line, do not write over existing data
+    fcsv.write(columnheaders)
+    fcsv.write(movie_write_str)
+    fcsv.close()
 
 
 
