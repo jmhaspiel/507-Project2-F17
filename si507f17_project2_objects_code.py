@@ -65,13 +65,11 @@ def sample_get_cache_itunes_data(search_term,media_term="all"):
 		cache_file_ref.close()
 		return CACHE_DICTION[unique_ident]
 
-
 ## [PROBLEM 1] [250 POINTS]
 print("\n***** PROBLEM 1 *****\n")
 
 
 ## For problem 1, you should define a class Media, representing ANY piece of media you can find on iTunes search. 
-
 
 ## The Media class constructor should accept one dictionary data structure representing a piece of media from iTunes as input to the constructor.
 ## It should instatiate at least the following instance variables:
@@ -86,7 +84,35 @@ print("\n***** PROBLEM 1 *****\n")
 ## - a special len method, which, for the Media class, returns 0 no matter what. (The length of an audiobook might mean something different from the length of a song, depending on how you want to define them!)
 ## - a special contains method (for the in operator) which takes one additional input, as all contains methods must, which should always be a string, and checks to see if the string input to this contains method is INSIDE the string representing the title of this piece of media (the title instance variable)
 
+user_search_term = input("Enter a search term for song here: ")
+itunes_search_results = sample_get_cache_itunes_data(user_search_term)
+single_itunes_result = itunes_search_results["results"][0]
 
+class Media(object):
+
+  def __init__(self, single_itunes_result):
+    self.title = single_itunes_result["trackName"]
+    self.author = single_itunes_result["artistName"]
+    self.itunes_URL = single_itunes_result["trackViewUrl"]
+    self.itunes_id = single_itunes_result["trackId"]
+   
+
+  def __str__(self):
+  	return "{} by {}".format(self.title, self.author)
+
+
+  def __repr__(self):
+    return "ITUNES MEDIA: {}".format(self.itunes_id)
+
+
+  def __contains__(self,test_string):
+    return (test_string in self.title)
+
+  def len(self):
+  	return 0
+
+single_itunes_result_media = Media(single_itunes_result)
+print(single_itunes_result_media)
 
 ## [PROBLEM 2] [400 POINTS]
 print("\n***** PROBLEM 2 *****\n")
@@ -110,7 +136,20 @@ print("\n***** PROBLEM 2 *****\n")
 ## Should have the len method overridden to return the number of seconds in the song. (HINT: The data supplies number of milliseconds in the song... How can you access that data and convert it to seconds?)
 
 
+class Song(Media):
 
+  def __init__(self, single_itunes_result):
+  	self.title = single_itunes_result["trackName"]
+  	self.author = single_itunes_result["artistName"]
+  	self.itunes_URL = single_itunes_result["trackViewUrl"]
+  	self.itunes_id = single_itunes_result["trackId"]
+  	self.album = single_itunes_result["collectionName"]
+  	self.track_number = single_itunes_result["trackNumber"]
+  	self.genre = single_itunes_result["trackViewUrl"]
+  	self.tracklength = (single_itunes_result["trackTimeMillis"]/1000)
+
+  def len(self):
+  	return self.tracklength
 ### class Movie:
 
 ## Should have the following additional instance variables:
