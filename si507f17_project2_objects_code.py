@@ -94,7 +94,10 @@ class Media(object):
         self.author = single_itunes_result["artistName"]
         self.itunes_URL = single_itunes_result["trackViewUrl"]
         self.itunes_id = single_itunes_result["trackId"]
-        self.len = 0
+        try:
+            self.len = int((single_itunes_result["trackTimeMillis"]/1000))
+        except:
+            self.len = 0
         self.csv_line = "\n{},{},{},{},{}".format(self.title, self.author, self.itunes_id, self.itunes_URL, self.len)
    
 
